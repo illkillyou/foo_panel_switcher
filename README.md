@@ -34,6 +34,8 @@ To switch between the two panels, use:
 
 View/Panel Switcher/Toggle Panel
 
+(u can also like make a jscript button or something to run the main menu command)
+
 
 
 Requirements
