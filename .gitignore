@@ -1,0 +1,34 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Build output
+build/
+x64/
+Debug/
+Release/
+
+# Compiled files
+*.dll
+*.lib
+*.exp
+*.obj
+*.pdb
+*.ilk
+*.ipdb
+*.iobj
+*.tlog
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.VC.db
+*.VC.opendb
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
