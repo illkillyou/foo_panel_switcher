@@ -2,7 +2,7 @@
 
 
 
-A DUI foobar2000 ui container. I created this so I could switch between 2 different panels without having ugly tabs or removing the element and replacing it each time.
+A DUI foobar2000 UI container. I created this so I could switch between 2 different panels without having ugly tabs or removing the element and replacing it each time.
 
 <img width="752" height="342" alt="image" src="https://github.com/user-attachments/assets/111859f0-ad51-4d4c-bf3a-996fabc424cb" />
 
@@ -61,4 +61,5 @@ After adding Panel Switcher to your layout, use Layout Editing Mode to configure
 
 
 If you have any questions for me message me on here
+nesting soon
 
