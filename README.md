@@ -24,7 +24,7 @@ A DUI foobar2000 UI container. I created this so I could switch between 2 differ
 
 After adding Panel Switcher to your layout, use Layout Editing Mode to configure the UI elements contained inside it. Use the main menu commands to cycle through and edit them to your liking.
 
-(u can also like make a jscript/spidermonkey button or something to run the main menu command)
+#### (u can also make a jscript/spidermonkey button to run the main menu command with one click that's what i do)
 
 
 
