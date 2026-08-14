@@ -16,11 +16,9 @@ namespace {
 
         ui_element_config_builder out;
 
-        t_uint32 version = 2;
         t_uint32 active = (t_uint32)activeChild;
         t_uint32 count = (t_uint32)children.get_count();
 
-        out << version;
         out << active;
         out << count;
 
@@ -32,78 +30,34 @@ namespace {
 
     }
 
-    static void parseConfig(ui_element_config::ptr config, t_size& activeChild, ui_element_config::ptr& child1, ui_element_config::ptr& child2) {
-        
+    static void parseConfig(ui_element_config::ptr config, t_size& activeChild, pfc::list_t<ui_element_config::ptr>& children) {
+       
         try {
 
             ui_element_config_parser in(config);
-
-            t_uint32 version;
-            t_uint32 active;
-
-            in >> version;
-
-            if (version != 1) {
-                throw exception_io_data();
-            }
+            t_uint32 active, count;
 
             in >> active;
-            in >> child1;
-            in >> child2;
-
-            activeChild = active == 1 ? 1 : 0;
-
-        }
-
-        catch (exception_io_data) {
-
-            activeChild = 0;
-
-            child1 = ui_element_config::g_create_empty();
-            child2 = ui_element_config::g_create_empty();
-
-        }
-
-    }
-
-    static void parseConfig(ui_element_config::ptr config, t_size& activeChild, pfc::list_t<ui_element_config::ptr>& children) {
-
-        try {
-
-            ui_element_config_parser in(config);
-
-            t_uint32 version;
-            in >> version;
+            in >> count;
 
             children.remove_all();
 
-            if (version == 2) {
+            for (t_uint32 i = 0; i < count; i++) {
 
-                t_uint32 active;
-                t_uint32 count;
-
-                in >> active;
-                in >> count;
-
-                for (t_uint32 i = 0; i < count; i++) {
-
-                    ui_element_config::ptr child;
-                    in >> child;
-                    children.add_item(child);
-
-                }
-
-                if (children.get_count() == 0) {
-                    children.add_item(ui_element_config::g_create_empty());
-                }
-
-                activeChild = active < children.get_count() ? active : 0;
-
-                return;
+                ui_element_config::ptr child;
+                in >> child;
+                children.add_item(child);
 
             }
 
-            throw exception_io_data();
+            t_size ccount = children.get_count();
+
+            if (ccount == 0) {
+                children.add_item(ui_element_config::g_create_empty());
+                ccount = 1;
+            }
+
+            activeChild = active < ccount ? active : 0;
 
         }
 
@@ -138,7 +92,10 @@ namespace {
 
         void GetChildName(t_size index, pfc::string_base& out) {
 
-            if (index >= m_children.get_count() || !m_children[index].is_valid() || m_children[index]->get_guid() == pfc::guid_null) {
+            const auto& child = m_children[index];
+            const GUID guid = child->get_guid();
+
+            if (index >= m_children.get_count() || !child.is_valid() || guid == pfc::guid_null) {
 
                 pfc::string_formatter name;
                 name << "Empty Panel " << (index + 1);
@@ -149,7 +106,7 @@ namespace {
 
             ui_element::ptr element;
 
-            if (ui_element::g_find(element, m_children[index]->get_guid())) {
+            if (ui_element::g_find(element, guid)) {
 
                 element->get_name(out);
                 return;
@@ -261,8 +218,10 @@ namespace {
 
             for (t_size i = 0; i < count; i++) {
 
-                if (m_children[i].is_valid()) {
-                    m_childConfigs[i] = m_children[i]->get_configuration();
+                const auto& child = m_children[i];
+
+                if (child.is_valid()) {
+                    m_childConfigs[i] = child->get_configuration();
                 }
 
             }
@@ -273,18 +232,21 @@ namespace {
 
             m_children.remove_all();
 
+            t_size mconfigcount = m_childConfigs.get_count();
+
             if (m_childConfigs.get_count() == 0) {
 
                 m_childConfigs.add_item(ui_element_config::g_create_empty());
                 m_activeChild = 0;
+                mconfigcount = 1;
 
             }
 
-            if (m_activeChild >= m_childConfigs.get_count()) {
+            if (m_activeChild >= mconfigcount) {
                 m_activeChild = 0;
             }
 
-            for (t_size i = 0; i < m_childConfigs.get_count(); i++) {
+            for (t_size i = 0; i < mconfigcount; i++) {
 
                 ui_element_instance_ptr child;
 
@@ -302,6 +264,9 @@ namespace {
             GetClientRect(&rc);
 
             for (t_size i = 0; i < m_children.get_count(); i++) {
+
+                const auto& child = m_children[i];
+                const auto& childwnd = child->get_wnd();
 
                 if (!m_children[i].is_valid()) {
                     continue;
@@ -396,7 +361,9 @@ namespace {
 
     void PanelSwitcherWindow::SetActiveChild(t_size index) {
 
-        if (index >= m_children.get_count()) {
+        t_size count = m_children.get_count();
+
+        if (index >= count) {
             return;
         }
 
@@ -404,13 +371,17 @@ namespace {
         t_size oldChild = m_activeChild;
         m_activeChild = index;
 
-        for (t_size i = 0; i < m_children.get_count(); i++) {
+        for (t_size i = 0; i < count; i++) {
 
-            if (!m_children[i].is_valid()) {
-                continue;
-            }
+            const auto& child = m_children[i];
 
-            ::ShowWindow(m_children[i]->get_wnd(), i == m_activeChild ? SW_SHOW : SW_HIDE);
+            if (!child.is_valid()) continue;
+
+            HWND wnd = child->get_wnd();
+            bool active = i == m_activeChild;
+
+            ::ShowWindow(wnd, active ? SW_SHOW : SW_HIDE);
+            if (active) ::SetWindowPos(wnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 
         }
 
@@ -420,8 +391,6 @@ namespace {
             host_child_visibility_changed(m_activeChild,true);
 
         }
-
-        ::SetWindowPos(m_children[m_activeChild]->get_wnd(), HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 
     }
 
@@ -462,15 +431,19 @@ namespace {
 
     void PanelSwitcherWindow::RemoveActiveChild() {
 
-        if (m_childConfigs.get_count() <= 1) {
+        t_size count = m_childConfigs.get_count();
+
+        if (count <= 1) {
             return;
         }
 
         CaptureChildConfigs();
         m_childConfigs.remove_by_idx(m_activeChild);
 
-        if (m_activeChild >= m_childConfigs.get_count()) {
-            m_activeChild = m_childConfigs.get_count() - 1;
+        count = m_childConfigs.get_count();
+
+        if (m_activeChild >= count) {
+            m_activeChild = count - 1;
         }
 
         RebuildChildren();
@@ -492,8 +465,10 @@ namespace {
 
         if (g_lastActivePanelSwitcher == this) {
 
-            if (g_panelSwitchers.get_count() > 0) {
-                g_lastActivePanelSwitcher = g_panelSwitchers[g_panelSwitchers.get_count() - 1];
+            t_size count = g_panelSwitchers.get_count();
+
+            if (count > 0) {
+                g_lastActivePanelSwitcher = g_panelSwitchers[count - 1];
             }else{
                 g_lastActivePanelSwitcher = nullptr;
             }
@@ -509,7 +484,6 @@ namespace {
 
         CBrush brush;
         WIN32_OP_D(brush.CreateSolidBrush(m_callback->query_std_color(ui_color_background)) != NULL);
-
         WIN32_OP_D(dc.FillRect(&rc, brush));
 
         return TRUE;

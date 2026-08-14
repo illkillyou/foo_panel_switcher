@@ -131,7 +131,6 @@ public:
         }
 
         out = "Switches directly to this panel.";
-
         return true;
 
     }
