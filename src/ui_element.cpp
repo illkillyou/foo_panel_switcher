@@ -22,7 +22,7 @@ namespace {
         out << active;
         out << count;
 
-        for (t_size i = 0; i < children.get_count(); i++) {
+        for (t_size i = 0; i < count; i++) {
             out << children[i];
         }
 
@@ -92,7 +92,7 @@ namespace {
 
         void GetChildName(t_size index, pfc::string_base& out) {
 
-            const auto& child = m_children[index];
+            const ui_element_instance_ptr child = m_children[index];
             const GUID guid = child->get_guid();
 
             if (index >= m_children.get_count() || !child.is_valid() || guid == pfc::guid_null) {
@@ -218,7 +218,7 @@ namespace {
 
             for (t_size i = 0; i < count; i++) {
 
-                const auto& child = m_children[i];
+                const ui_element_instance_ptr child = m_children[i];
 
                 if (child.is_valid()) {
                     m_childConfigs[i] = child->get_configuration();
@@ -265,15 +265,15 @@ namespace {
 
             for (t_size i = 0; i < m_children.get_count(); i++) {
 
-                const auto& child = m_children[i];
-                const auto& childwnd = child->get_wnd();
+                ui_element_instance_ptr child = m_children[i];
+                HWND childwnd = child->get_wnd();
 
                 if (!m_children[i].is_valid()) {
                     continue;
                 }
 
-                ::SetWindowPos(m_children[i]->get_wnd(), NULL, 0, 0, rc.Width(), rc.Height(), SWP_NOZORDER | SWP_NOACTIVATE);
-                ::ShowWindow(m_children[i]->get_wnd(), i == m_activeChild ? SW_SHOW : SW_HIDE);
+                ::SetWindowPos(childwnd, NULL, 0, 0, rc.Width(), rc.Height(), SWP_NOZORDER | SWP_NOACTIVATE);
+                ::ShowWindow(childwnd, i == m_activeChild ? SW_SHOW : SW_HIDE);
 
             }
 
@@ -328,8 +328,10 @@ namespace {
             CRect rc;
             GetClientRect(&rc);
 
-            ::SetWindowPos((*child)->get_wnd(), NULL, 0, 0, rc.Width(), rc.Height(), SWP_NOZORDER | SWP_NOACTIVATE);
-            ::ShowWindow((*child)->get_wnd(), p_id == m_activeChild ? SW_SHOW : SW_HIDE);
+            HWND childwnd = (*child)->get_wnd();
+
+            ::SetWindowPos(childwnd, NULL, 0, 0, rc.Width(), rc.Height(), SWP_NOZORDER | SWP_NOACTIVATE);
+            ::ShowWindow(childwnd, p_id == m_activeChild ? SW_SHOW : SW_HIDE);
 
         }
 
@@ -373,7 +375,7 @@ namespace {
 
         for (t_size i = 0; i < count; i++) {
 
-            const auto& child = m_children[i];
+            const ui_element_instance_ptr child = m_children[i];
 
             if (!child.is_valid()) continue;
 

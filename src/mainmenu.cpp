@@ -35,7 +35,7 @@ static const MenuCommand commands[] = {
     
     {guid_panel_switcher_previous_command, "Previous Panel", "Switches to the previous panel.", PanelSwitcherPrevious},
     {guid_panel_switcher_next_command, "Next Panel", "Switches to the next panel.", PanelSwitcherNext},
-    {guid_panel_switcher_add_command, "Add Panel", "Adds another panel slot.", PanelSwitcherAdd},
+    {guid_panel_switcher_add_command, "Add Panel", "Adds another panel.", PanelSwitcherAdd},
     {guid_panel_switcher_remove_command, "Remove Current Panel", "Removes the currently active panel.", PanelSwitcherRemoveCurrent}
 
 };
@@ -82,6 +82,7 @@ static GUID make_panel_command_guid(t_uint32 index) {
 
     guid.Data1 += index;
     return guid;
+
 }
 
 class PanelSwitcherPanelCommands :
