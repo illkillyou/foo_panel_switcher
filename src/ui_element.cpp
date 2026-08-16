@@ -390,7 +390,7 @@ namespace {
         if (oldChild != m_activeChild) {
 
             host_child_visibility_changed(oldChild, false);
-            host_child_visibility_changed(m_activeChild,true);
+            host_child_visibility_changed(m_activeChild, true);
 
         }
 
