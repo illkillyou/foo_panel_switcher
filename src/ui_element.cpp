@@ -16,8 +16,8 @@ namespace {
 
         ui_element_config_builder out;
 
-        t_uint32 active = (t_uint32)activeChild;
-        t_uint32 count = (t_uint32)children.get_count();
+        t_uint32 active = (t_uint32) activeChild;
+        t_uint32 count = (t_uint32) children.get_count();
 
         out << active;
         out << count;
